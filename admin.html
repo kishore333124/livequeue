@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>LiveQueue - Admin</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+<nav>
+
+    <div class="logo">
+        LiveQueue Admin
+    </div>
+
+    <div>
+
+        <a href="index.html">
+            Customer
+        </a>
+
+        <a href="queue.html">
+            Live Queue
+        </a>
+
+        <a href="admin.html">
+            Admin
+        </a>
+
+    </div>
+
+</nav>
+
+
+<div class="container">
+
+    <div class="hero">
+
+        <h1>
+            Queue Management
+        </h1>
+
+        <p>
+            Manage customers in real-time
+        </p>
+
+    </div>
+
+
+    <div class="card">
+
+        <h2>
+            Current Customer
+        </h2>
+
+        <div
+            id="currentCustomer"
+            class="token">
+            -
+        </div>
+
+        <p id="currentName">
+            No customer
+        </p>
+
+        <br>
+
+
+        <button
+            class="btn"
+            onclick="nextCustomer()">
+
+            Next Customer
+
+        </button>
+
+
+        <button
+            class="btn danger"
+            onclick="resetQueue()">
+
+            Reset Queue
+
+        </button>
+
+    </div>
+
+
+    <div class="card">
+
+        <h2>
+            Waiting Customers
+        </h2>
+
+        <div id="adminQueue">
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+function getQueue() {
+
+    return JSON.parse(
+        localStorage.getItem("liveQueue")
+    ) || [];
+
+}
+
+
+function updateAdmin() {
+
+    let queue = getQueue();
+
+
+    let serving = queue.find(
+        person => person.status === "serving"
+    );
+
+
+    if (serving) {
+
+        document.getElementById(
+            "currentCustomer"
+        ).innerText =
+            "#" + serving.token;
+
+
+        document.getElementById(
+            "currentName"
+        ).innerText =
+            serving.name;
+
+    }
+
+    else {
+
+        document.getElementById(
+            "currentCustomer"
+        ).innerText =
+            "-";
+
+
+        document.getElementById(
+            "currentName"
+        ).innerText =
+            "No customer";
+
+    }
+
+
+    let waiting = queue.filter(
+        person => person.status === "waiting"
+    );
+
+
+    let html = "";
+
+
+    if (waiting.length === 0) {
+
+        html =
+            "<p>No waiting customers.</p>";
+
+    }
+
+
+    waiting.forEach(person => {
+
+        html += `
+
+            <div class="card">
+
+                <h3>
+                    Token #${person.token}
+                </h3>
+
+                <p>
+                    ${person.name}
+                </p>
+
+            </div>
+
+        `;
+
+    });
+
+
+    document.getElementById(
+        "adminQueue"
+    ).innerHTML =
+        html;
+
+}
+
+
+function nextCustomer() {
+
+    let queue = getQueue();
+
+
+    let serving = queue.find(
+        person => person.status === "serving"
+    );
+
+
+    if (serving) {
+
+        serving.status = "completed";
+
+    }
+
+
+    let next = queue.find(
+        person => person.status === "waiting"
+    );
+
+
+    if (next) {
+
+        next.status = "serving";
+
+    }
+
+
+    localStorage.setItem(
+        "liveQueue",
+        JSON.stringify(queue)
+    );
+
+
+    updateAdmin();
+
+}
+
+
+function resetQueue() {
+
+    if (
+        confirm(
+            "Are you sure you want to reset the queue?"
+        )
+    ) {
+
+        localStorage.removeItem(
+            "liveQueue"
+        );
+
+        updateAdmin();
+
+    }
+
+}
+
+
+updateAdmin();
+
+setInterval(
+    updateAdmin,
+    1000
+);
+
+</script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LiveQueue - Join Queue</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<nav>
+    <div class="logo">LiveQueue</div>
+
+    <div>
+        <a href="index.html">Join Queue</a>
+        <a href="queue.html">Live Queue</a>
+        <a href="admin.html">Admin</a>
+    </div>
+</nav>
+
+<div class="container">
+
+    <div class="hero">
+
+        <h1>Skip the Waiting Line</h1>
+
+        <p>
+            Join the queue digitally and know your waiting time in real-time.
+        </p>
+
+        <div class="card">
+
+            <h2>Join Live Queue</h2>
+
+            <input
+                type="text"
+                id="customerName"
+                placeholder="Enter your name">
+
+            <button class="btn" onclick="joinQueue()">
+                Get Token
+            </button>
+
+            <div id="result"></div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+function getQueue() {
+
+    return JSON.parse(
+        localStorage.getItem("liveQueue")
+    ) || [];
+
+}
+
+function joinQueue() {
+
+    let name =
+        document.getElementById("customerName").value.trim();
+
+    if (name === "") {
+
+        alert("Please enter your name");
+
+        return;
+
+    }
+
+    let queue = getQueue();
+
+    let nextToken = queue.length + 1;
+
+    queue.push({
+
+        token: nextToken,
+
+        name: name,
+
+        status: "waiting"
+
+    });
+
+    localStorage.setItem(
+        "liveQueue",
+        JSON.stringify(queue)
+    );
+
+    document.getElementById("result").innerHTML = `
+
+        <p class="success">
+            Queue joined successfully!
+        </p>
+
+        <div class="token">
+            #${nextToken}
+        </div>
+
+        <p>
+            Please wait for your turn.
+        </p>
+
+        <br>
+
+        <a class="btn" href="queue.html">
+            View Live Queue
+        </a>
+
+    `;
+
+    document.getElementById("customerName").value = "";
+
+}
+
+</script>
+
+</body>
+</html>

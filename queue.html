@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>LiveQueue - Live Queue</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<nav>
+
+    <div class="logo">
+        LiveQueue
+    </div>
+
+    <div>
+
+        <a href="index.html">
+            Join Queue
+        </a>
+
+        <a href="queue.html">
+            Live Queue
+        </a>
+
+        <a href="admin.html">
+            Admin
+        </a>
+
+    </div>
+
+</nav>
+
+
+<div class="container">
+
+    <div class="hero">
+
+        <h1>Live Queue Status</h1>
+
+        <p>
+            Real-time queue information
+        </p>
+
+    </div>
+
+
+    <div class="stats">
+
+        <div class="stat">
+
+            <h2 id="currentToken">
+                -
+            </h2>
+
+            <p>
+                Current Token
+            </p>
+
+        </div>
+
+
+        <div class="stat">
+
+            <h2 id="waitingCount">
+                0
+            </h2>
+
+            <p>
+                People Waiting
+            </p>
+
+        </div>
+
+
+        <div class="stat">
+
+            <h2 id="waitTime">
+                0
+            </h2>
+
+            <p>
+                Estimated Minutes
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <br>
+
+
+    <div class="card">
+
+        <h2>
+            Current Queue
+        </h2>
+
+        <br>
+
+        <div id="queueList">
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+function getQueue() {
+
+    return JSON.parse(
+        localStorage.getItem("liveQueue")
+    ) || [];
+
+}
+
+
+function updateQueue() {
+
+    let queue = getQueue();
+
+
+    let waiting =
+        queue.filter(
+            person => person.status === "waiting"
+        );
+
+
+    let completed =
+        queue.filter(
+            person => person.status === "completed"
+        );
+
+
+    let current = queue.find(
+        person => person.status === "serving"
+    );
+
+
+    document.getElementById("currentToken").innerText =
+        current ? "#" + current.token : "-";
+
+
+    document.getElementById("waitingCount").innerText =
+        waiting.length;
+
+
+    document.getElementById("waitTime").innerText =
+        waiting.length * 5;
+
+
+    let html = "";
+
+
+    if (waiting.length === 0 && !current) {
+
+        html = `
+            <p>
+                No customers waiting.
+            </p>
+        `;
+
+    }
+
+
+    if (current) {
+
+        html += `
+
+            <div class="card">
+
+                <h3>
+                    Now Serving
+                </h3>
+
+                <div class="token">
+                    #${current.token}
+                </div>
+
+                <p>
+                    ${current.name}
+                </p>
+
+            </div>
+
+        `;
+
+    }
+
+
+    waiting.forEach(person => {
+
+        html += `
+
+            <div class="card">
+
+                <h3>
+                    Token #${person.token}
+                </h3>
+
+                <p>
+                    ${person.name}
+                </p>
+
+                <p>
+                    Estimated wait:
+                    ${(waiting.indexOf(person) + 1) * 5}
+                    minutes
+                </p>
+
+            </div>
+
+        `;
+
+    });
+
+
+    document.getElementById("queueList").innerHTML =
+        html;
+
+}
+
+
+updateQueue();
+
+setInterval(updateQueue, 1000);
+
+</script>
+
+</body>
+
+</html>
